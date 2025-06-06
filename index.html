@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        overflow: hidden;
+        background: #000;
+        font-family: Arial, sans-serif;
+      }
+
+      .container {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+      }
+
+      iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        border: none;
+        overflow: hidden;
+        -ms-overflow-style: none; /* IE and Edge */
+        scrollbar-width: none; /* Firefox */
+      }
+
+      /* Taller, fully solid blue header overlay */
+      .header-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 70px; /* increased height */
+        background-color: #0000FF; /* solid blue */
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 20px;
+        letter-spacing: 1px;
+        z-index: 10;
+        user-select: none;
+      }
+
+      /* Disable interaction on top half below header */
+      .click-blocker {
+        position: absolute;
+        top: 70px; /* start below new header height */
+        left: 0;
+        width: 100%;
+        height: calc(50% - 70px); /* adjust to half screen minus header */
+        z-index: 20;
+        background: transparent;
+        pointer-events: all;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <iframe
+        src="https://www.flashscore.in/match/cricket/bwZ04LuS/#/match-summary"
+        sandbox="allow-scripts allow-same-origin allow-forms"
+        allowfullscreen
+        scrolling="no"
+      ></iframe>
+
+      <!-- Blue header overlay -->
+      <div class="header-overlay">WESTINDIES VS ENGLAND</div>
+
+      <!-- Click blocker below header -->
+      <div class="click-blocker"></div>
+    </div>
+  </body>
+</html>
