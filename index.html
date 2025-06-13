@@ -1,83 +1,219 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <style>
-      html,
-      body {
-        margin: 0;
-        padding: 0;
-        height: 100vh;
-        overflow: hidden;
-        background: #000;
-        font-family: Arial, sans-serif;
-      }
-
-      .container {
-        position: relative;
-        width: 100vw;
-        height: 100vh;
-        overflow: hidden;
-      }
-
-      iframe {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        border: none;
-        overflow: hidden;
-        -ms-overflow-style: none; /* IE and Edge */
-        scrollbar-width: none; /* Firefox */
-      }
-
-      /* Taller, fully solid blue header overlay */
-      .header-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 70px; /* increased height */
-        background-color: #008000; /* solid blue */
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        font-size: 20px;
-        letter-spacing: 1px;
-        z-index: 10;
-        user-select: none;
-      }
-
-      /* Disable interaction on top half below header */
-      .click-blocker {
-        position: absolute;
-        top: 70px; /* start below new header height */
-        left: 0;
-        width: 100%;
-        height: calc(50% - 70px); /* adjust to half screen minus header */
-        z-index: 20;
-        background: transparent;
-        pointer-events: all;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <iframe
-        src="https://www.flashscore.in/match/cricket/bwPOJ5LH/#/match-summary"
-        sandbox="allow-scripts allow-same-origin allow-forms"
-        allowfullscreen
-        scrolling="no"
-      ></iframe>
-
-      <!-- Blue header overlay -->
-      <div class="header-overlay">SOUTH AFRICA VS AUSTRALIA</div>
-
-      <!-- Click blocker below header -->
-      <div class="click-blocker"></div>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Premium Live Scoreboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;600;800&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0; padding: 0; box-sizing: border-box;
+    }
+    body {
+      font-family: 'Orbitron', sans-serif;
+      background: linear-gradient(135deg, #0a0a0a, #050505);
+      color: #fff;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+    .score-container {
+      background: rgba(15, 15, 15, 0.5);
+      border: 1px solid rgba(0, 255, 170, 0.2);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 0 60px rgba(0, 255, 170, 0.2);
+      width: 95%;
+      max-width: 700px;
+      animation: fadeIn 1.2s ease forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
+    .flags {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+    }
+    .flag-box {
+      text-align: center;
+      transition: transform 0.3s ease;
+    }
+    .flag-box:hover { transform: scale(1.05); }
+    .flag-box img {
+      width: 80px; height: 50px; border-radius: 10px;
+      border: 2px solid #00ffd9;
+      box-shadow: 0 0 14px #00ffd9;
+    }
+    .team-name {
+      margin-top: 8px; font-size: 1rem;
+      font-weight: 700; color: #00ffd9;
+      text-shadow: 0 0 8px #00ffd9;
+    }
+    #match-id { display: none; }
+    .score-box {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(0, 255, 170, 0.3);
+      border-radius: 14px;
+      padding: 25px;
+      box-shadow: inset 0 0 18px rgba(0, 255, 150, 0.25);
+      font-size: 1.1rem;
+      text-align: center;
+      color: #e0e0e0;
+      line-height: 2;
+    }
+    .score-box strong {
+      color: #fff;
+      font-size: 1.4rem;
+      display: block;
+      margin-bottom: 10px;
+    }
+    .score-box span {
+      color: #00ffcc;
+      font-size: 2rem;
+      font-weight: bold;
+      text-shadow: 0 0 12px #00ffcc;
+      display: block;
+      margin: 8px 0;
+    }
+    .notification {
+      display: none;
+      color: #ff5555;
+      font-weight: 600;
+      margin-top: 15px;
+      text-align: center;
+    }
+    .notification.is-active {
+      display: block;
+      animation: shake 0.4s ease-in-out;
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
+    }
+    .score-update {
+      animation: glow 1s ease;
+    }
+    @keyframes glow {
+      0% { text-shadow: 0 0 5px #00ffcc; }
+      50% { text-shadow: 0 0 25px #00ffcc; }
+      100% { text-shadow: 0 0 5px #00ffcc; }
+    }
+    .icon {
+      width: 20px;
+      height: 20px;
+      fill: #00ffd9;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    .line {
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="score-container">
+    <div class="flags">
+      <div class="flag-box">
+        <img src="https://flagcdn.com/w320/za.png" alt="South Africa">
+        <div class="team-name">South Africa</div>
+      </div>
+      <div class="flag-box">
+        <img src="https://flagcdn.com/w320/au.png" alt="Australia">
+        <div class="team-name">Australia</div>
+      </div>
     </div>
-  </body>
+
+    <input type="hidden" id="match-id" value="106673">
+
+    <div class="notification" id="notification"><span></span></div>
+
+    <div id="score-card" class="score-box" aria-live="polite">
+      <p id="score-output">Loading live score...</p>
+    </div>
+  </div>
+
+  <!-- Inline SVG icons -->
+  <svg style="display:none;">
+    <symbol id="icon-cricket" viewBox="0 0 24 24"><path d="M21 2L3 20l1.5 1.5L22.5 3.5 21 2zM14 14c-1.1 0-2 .9-2 2a2 2 0 0 0 4 0c0-1.1-.9-2-2-2z"/></symbol>
+    <symbol id="icon-stats" viewBox="0 0 24 24"><path d="M4 21h2V10H4v11zM10 21h2V3h-2v18zm6 0h2v-8h-2v8z"/></symbol>
+    <symbol id="icon-update" viewBox="0 0 24 24"><path d="M12 6V3L8 7l4 4V8c2.8 0 5 2.2 5 5 0 .7-.1 1.3-.4 1.9l1.5 1.3C18.7 15.1 19 13.6 19 12c0-3.9-3.1-7-7-7zM6.9 7.1C5.3 8.6 4 10.7 4 13c0 3.9 3.1 7 7 7v3l4-4-4-4v3c-2.8 0-5-2.2-5-5 0-1.2.4-2.3 1.1-3.2L6.9 7.1z"/></symbol>
+    <symbol id="icon-clock" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm.5 5H11v7l6 3.5.8-1.2-5.3-3V7z"/></symbol>
+  </svg>
+
+  <script>
+    const canonicalLink = document.createElement('link');
+    canonicalLink.rel = 'canonical';
+    canonicalLink.href = window.location.href;
+    document.head.appendChild(canonicalLink);
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const matchId = document.getElementById('match-id')?.value.trim();
+      if (matchId) {
+        localStorage.setItem('matchId', matchId);
+        await fetchScore(matchId);
+        setInterval(() => fetchScore(matchId), 15000); // Refresh every 15s
+      }
+    });
+
+    function getCurrentDateTime() {
+      return new Date().toLocaleString('en-IN', {
+        timeZone: 'Asia/Kolkata',
+        hour12: true,
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+    }
+
+    function icon(id) {
+      return `<svg class="icon"><use href="#${id}"></use></svg>`;
+    }
+
+    async function fetchScore(matchId) {
+      try {
+        const response = await fetch('https://editverselive.github.io/Scoreboard-/score.json');
+        if (!response.ok) throw new Error('Unable to fetch live score.');
+
+        const data = await response.json();
+        const currentTime = getCurrentDateTime();
+
+        const scoreHTML = data.livescore === "Match Stats will Update Soon"
+          ? `${icon('icon-cricket')}<strong>${data.title}</strong>
+            <div class="line">${icon('icon-update')}${data.update}</div>
+            <div class="line">${icon('icon-clock')}${currentTime}</div>`
+          : `${icon('icon-cricket')}<strong>${data.title}</strong>
+            <div class="line">${icon('icon-stats')}<span>${data.livescore}</span></div>
+            <div class="line">${icon('icon-stats')}${data.runrate}</div>
+            <div class="line">${icon('icon-update')}${data.update}</div>
+            <div class="line">${icon('icon-clock')}${currentTime}</div>`;
+
+        const output = document.getElementById('score-output');
+        output.innerHTML = scoreHTML;
+        output.classList.add('score-update');
+        setTimeout(() => output.classList.remove('score-update'), 1000);
+
+      } catch (error) {
+        showNotification(error.message);
+      }
+    }
+
+    function showNotification(message) {
+      const notification = document.getElementById('notification');
+      notification.querySelector('span').textContent = message;
+      notification.classList.add('is-active');
+      setTimeout(() => notification.classList.remove('is-active'), 3000);
+    }
+  </script>
+</body>
 </html>
