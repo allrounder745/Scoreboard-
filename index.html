@@ -181,7 +181,7 @@
 
     async function fetchScore(matchId) {
       try {
-        const response = await fetch('https://vertex-dusky-omega.vercel.app/api/score');
+        const response = await fetch('https://editverselive.github.io/Scoreboard-/score.json');
         if (!response.ok) throw new Error('Unable to fetch live score.');
 
         const data = await response.json();
